@@ -7,14 +7,15 @@ const app = express();
 const port = 3010;
 
 app.use(cors()); // Autorisez toutes les requêtes CORS
-
 app.use(bodyParser.json());
 
 // Point de terminaison pour créer une session de paiement
 app.post('/create-checkout-session', async (req, res) => {
   const { items, success_url, cancel_url } = req.body;
 
-  // Créer une session de paiement avec les informations fournies
+  // Affiche les éléments reçus
+  console.log('Items reçus pour Stripe:', items);
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -23,23 +24,24 @@ app.post('/create-checkout-session', async (req, res) => {
           currency: 'eur',
           product_data: {
             name: item.name,
+            description: item.description // Vérifie que cette clé est bien définie
           },
           unit_amount: item.amount,
         },
-        quantity: 1,
+        quantity: item.quantity,
       })),
       mode: 'payment',
       success_url,
       cancel_url,
     });
 
-    // Renvoyer l'ID de session au client
     res.json({ sessionId: session.url });
   } catch (error) {
     console.error('Erreur lors de la création de la session de paiement :', error);
     res.status(500).json({ error: 'Erreur lors de la création de la session de paiement' });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Serveur en cours d'exécution sur http://localhost:${port}`);
