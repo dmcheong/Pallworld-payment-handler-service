@@ -24,7 +24,7 @@ app.post('/create-checkout-session', async (req, res) => {
           currency: 'eur',
           product_data: {
             name: item.name,
-            description: item.description // Vérifie que cette clé est bien définie
+            description: item.description
           },
           unit_amount: item.amount,
         },
