@@ -1,3 +1,4 @@
+// app.js
 const express = require('express');
 const stripe = require('stripe')('sk_test_51OexNZKqnFl9CSHJPDuPtianNXkdUT437GLzUSxbaar29WHs0D71EGOy4zTkUc6b279qQtjxtZ4whV5hAlYHvIjy001TGLtULG');
 const bodyParser = require('body-parser');
@@ -29,6 +30,14 @@ app.post('/create-checkout-session', async (req, res) => {
             mode: 'payment',
             success_url,
             cancel_url,
+        });
+
+        // Après la création de la session, calculer le nombre de tokens à ajouter
+        const tokensToAdd = items.reduce((total, item) => total + item.quantity, 0);
+
+        // Appel à l'API BDD pour ajouter les tokens à l'utilisateur
+        await axios.post(`http://localhost:3005/api/users/${userId}/add-tokens`, {
+            tokensToAdd
         });
 
         const orderData = {
