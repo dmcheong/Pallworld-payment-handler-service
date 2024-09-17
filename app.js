@@ -61,7 +61,6 @@ app.post('/create-checkout-session', async (req, res) => {
         };
 
         await axios.post('http://localhost:3005/api/orders', orderData);
-        console.log('Données envoyées à l\'API:', orderData);
 
         res.json({ sessionId: session.url });
     } catch (error) {
