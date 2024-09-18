@@ -1,4 +1,3 @@
-// app.js
 const express = require('express');
 const stripe = require('stripe')('sk_test_51OexNZKqnFl9CSHJPDuPtianNXkdUT437GLzUSxbaar29WHs0D71EGOy4zTkUc6b279qQtjxtZ4whV5hAlYHvIjy001TGLtULG');
 const bodyParser = require('body-parser');
@@ -17,25 +16,27 @@ app.post('/create-checkout-session', async (req, res) => {
     try {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            line_items: items.map(item => ({
-                price_data: {
-                    currency: 'eur',
-                    product_data: {
-                        name: item.name,
+            line_items: items.map(item => {
+                const unitAmount = item.discountPrice ? Math.round(item.discountPrice * 100) : item.amount;
+
+                return {
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: item.name,
+                        },
+                        unit_amount: unitAmount,
                     },
-                    unit_amount: item.amount,
-                },
-                quantity: item.quantity,
-            })),
+                    quantity: item.quantity,
+                };
+            }),
             mode: 'payment',
             success_url,
             cancel_url,
         });
 
-        // Après la création de la session, calculer le nombre de tokens à ajouter
         const tokensToAdd = items.reduce((total, item) => total + item.quantity, 0);
 
-        // Appel à l'API BDD pour ajouter les tokens à l'utilisateur
         await axios.post(`http://localhost:3005/api/users/${userId}/add-tokens`, {
             tokensToAdd
         });
