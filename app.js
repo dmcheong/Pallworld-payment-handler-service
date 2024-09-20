@@ -35,7 +35,13 @@ app.post('/create-checkout-session', async (req, res) => {
             cancel_url,
         });
 
-        const tokensToAdd = items.reduce((total, item) => total + item.quantity, 0);
+        const tokensToAdd = items.reduce((total, item) => {
+            if (item.name.toLowerCase().includes('token')) {
+                const packQuantity = parseInt(item.name.match(/\d+/)); 
+                return total + (packQuantity * item.quantity); 
+            }
+            return total;
+        }, 0);
 
         await axios.post(`http://localhost:3005/api/users/${userId}/add-tokens`, {
             tokensToAdd
