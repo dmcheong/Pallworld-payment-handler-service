@@ -1,11 +1,12 @@
 const express = require('express');
-const stripe = require('stripe')('sk_test_51OexNZKqnFl9CSHJPDuPtianNXkdUT437GLzUSxbaar29WHs0D71EGOy4zTkUc6b279qQtjxtZ4whV5hAlYHvIjy001TGLtULG');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Utilisation de la clé depuis .env
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
+require('dotenv').config(); // Charger les variables d'environnement
 
 const app = express();
-const port = 3010;
+const port = process.env.PORT; // Utilisation du port depuis .env, avec fallback
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -43,7 +44,7 @@ app.post('/create-checkout-session', async (req, res) => {
             return total;
         }, 0);
 
-        await axios.post(`http://localhost:3005/api/users/${userId}/add-tokens`, {
+        await axios.post(`http://localhost:${process.env.USER_API_PORT}/api/users/${userId}/add-tokens`, { // Utilisation du port de l'API user depuis .env
             tokensToAdd
         });
 
@@ -67,7 +68,7 @@ app.post('/create-checkout-session', async (req, res) => {
             }
         };
 
-        await axios.post('http://localhost:3005/api/orders', orderData);
+        await axios.post(`http://localhost:${process.env.USER_API_PORT}/api/orders`, orderData); // Utilisation du port de l'API order depuis .env
 
         res.json({ sessionId: session.url });
     } catch (error) {
