@@ -1,12 +1,13 @@
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Utilisation de la clé depuis .env
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
-require('dotenv').config(); // Charger les variables d'environnement
+require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT; // Utilisation du port depuis .env, avec fallback
+const port = process.env.PORT;
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -44,7 +45,7 @@ app.post('/create-checkout-session', async (req, res) => {
             return total;
         }, 0);
 
-        await axios.post(`http://localhost:${process.env.USER_API_PORT}/api/users/${userId}/add-tokens`, { // Utilisation du port de l'API user depuis .env
+        await axios.post(`http://localhost:${process.env.USER_API_PORT}/api/users/${userId}/add-tokens`, {
             tokensToAdd
         });
 
